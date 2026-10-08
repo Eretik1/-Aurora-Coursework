@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/Lab_2.qml</file>
+        <file>qml/pages/MainPage.qml</file>
+        <file>qml/cover/DefaultCoverPage.qml</file>
+        <file>qml/components/DeviceIndicator.qml</file>
+        <file>qml/components/Section.qml</file>
+        <file>qml/components/TabButton.qml</file>
+	<file>qml/icons/bluetooth.svg</file> 
+    </qresource>
+</RCC>

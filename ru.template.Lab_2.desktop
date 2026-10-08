@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+X-Nemo-Application-Type=silica-qt5
+Icon=ru.template.Lab_2
+Exec=/usr/bin/ru.template.Lab_2
+Name=Template
+Name[ru]=Шаблон
+
+[X-Application]
+Permissions=Bluetooth;UserDirs
+OrganizationName=ru.template
+ApplicationName=Lab_2
+ExecDBus=/usr/bin/ru.template.Lab_2

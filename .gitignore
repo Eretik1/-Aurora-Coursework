@@ -1,0 +1,20 @@
+# Qt Creator
+*.pro.user
+*.pro.user.*
+
+# Сборка
+build/
+RPMS/
+*.o
+*.so
+Makefile
+.sfdk/
+
+# Ключи и пароли
+vmshare/
+*.pem
+*.key
+
+# Прочее
+*.log
+.DS_Store
