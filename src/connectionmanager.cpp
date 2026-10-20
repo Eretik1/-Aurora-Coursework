@@ -1,7 +1,7 @@
 #include "connectionmanager.h"
 
 ConnectionManager::ConnectionManager(QObject *parent) : QObject(parent) {
-    // Настройка сокета
+
     connect(&m_socket, &QTcpSocket::connected, this, &ConnectionManager::onConnected);
     connect(&m_socket, &QTcpSocket::disconnected, this, &ConnectionManager::onDisconnected);
     connect(&m_socket, &QTcpSocket::readyRead, this, &ConnectionManager::onReadyRead);
@@ -14,7 +14,6 @@ void ConnectionManager::toggleConnection() {
         m_socket.disconnectFromHost();
     } else {
         appendLog("Попытка подключения к эмулятору (10.0.2.2)...");
-        // ВАЖНО: замените IP на тот, где запущен Python-скрипт
         m_socket.connectToHost("10.0.2.2", 5555);
     }
 }
@@ -32,7 +31,7 @@ void ConnectionManager::onDisconnected() {
 }
 
 void ConnectionManager::onReadyRead() {
-    // Пока просто выводим всё, что приходит от Python-скрипта в лог
+
     QByteArray data = m_socket.readAll();
     appendLog(QString::fromUtf8(data).trimmed());
 }

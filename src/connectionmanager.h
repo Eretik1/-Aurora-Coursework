@@ -5,7 +5,6 @@
 
 class ConnectionManager : public QObject {
     Q_OBJECT
-    // Свойства, которые QML будет читать и на которые будет реагировать
     Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
     Q_PROPERTY(QString logText READ logText NOTIFY logTextChanged)
 
@@ -15,7 +14,6 @@ public:
     bool isConnected() const { return m_isConnected; }
     QString logText() const { return m_logText; }
 
-    // Методы, которые будут вызываться из QML
     Q_INVOKABLE void toggleConnection();
 
 signals:

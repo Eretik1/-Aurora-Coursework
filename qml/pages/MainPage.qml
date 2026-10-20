@@ -25,7 +25,7 @@ Page {
     property string filePath: ""
     property string uploadStatus: "Ready"
 
-    // Прогресс и логи теперь контролируются логикой, а не кликами
+
     property int progress: 0
     property string commandInput: ""
 
@@ -73,7 +73,7 @@ Page {
                     width: pairLabel.width + 24
                     height: 26
                     radius: 2
-                    // Привязка к C++ (backend.isConnected)
+
                     color: backend.isConnected ? "transparent" : page.colorAmber
                     border.color: backend.isConnected ? page.colorRed : page.colorAmber
                     border.width: backend.isConnected ? 1 : 0
@@ -82,7 +82,7 @@ Page {
                     Text {
                         id: pairLabel
                         anchors.centerIn: parent
-                        // Привязка к C++
+
                         text: backend.isConnected ? "DISCONNECT" : "⬡  PAIR DEVICE"
                         color: backend.isConnected ? page.colorRed : "#0c0d10"
                         font.pixelSize: 10
@@ -92,7 +92,7 @@ Page {
 
                     MouseArea {
                         anchors.fill: parent
-                        // Вызываем метод из C++
+
                         onClicked: backend.toggleConnection()
                     }
                 }
@@ -103,7 +103,7 @@ Page {
 
                     DeviceIndicator {
                         slot: 1
-                        // Загорается только если реально подключились
+
                         connected: backend.isConnected
                         deviceName: backend.isConnected ? "STM32 (TCP)" : ""
                     }
@@ -246,7 +246,7 @@ Page {
 
                                         MouseArea {
                                             anchors.fill: parent
-                                            // Пока просто заглушка для выбора файла
+
                                             onClicked: page.filePath = "firmware.bin"
                                         }
                                     }
@@ -319,7 +319,6 @@ Page {
                             Rectangle {
                                 width: uploadBtnText.width + 40
                                 height: 36
-                                // Кнопка активна только если есть подключение
                                 color: backend.isConnected ? page.colorAmber : page.colorSurface
                                 border.color: backend.isConnected ? page.colorAmber : page.colorBorder
                                 border.width: 1
@@ -339,7 +338,6 @@ Page {
                                     anchors.fill: parent
                                     onClicked: {
                                         if (backend.isConnected) {
-                                            // Убрали фейковое заполнение прогресса
                                             console.log("Кнопка загрузки нажата, но логика еще не реализована");
                                             page.uploadStatus = "Waiting for logic...";
                                         }
@@ -357,18 +355,31 @@ Page {
                                     color: page.colorLogBg
                                     border.color: page.colorBorder
                                     border.width: 1
+                                    clip: true
 
-                                    // Вывод реальных логов из C++
-                                    Text {
+                                    Flickable {
                                         anchors.fill: parent
                                         anchors.margins: 8
-                                        text: backend.logText.length === 0
-                                              ? "-- awaiting events --"
-                                              : backend.logText
-                                        color: backend.logText.length === 0 ? "#3a3f52" : page.colorLogText
-                                        font.pixelSize: 10
-                                        font.family: "monospace"
-                                        wrapMode: Text.Wrap
+                                        contentWidth: width
+                                        contentHeight: uploadLogText.implicitHeight
+                                        clip: true
+                                        flickableDirection: Flickable.VerticalFlick
+
+                                        Text {
+                                            id: uploadLogText
+                                            width: parent.width
+                                            text: backend.logText.length === 0 ? "-- awaiting events --" : backend.logText
+                                            color: backend.logText.length === 0 ? "#3a3f52" : page.colorLogText
+                                            font.pixelSize: 10
+                                            font.family: "monospace"
+                                            wrapMode: Text.Wrap
+                                        }
+
+                                        onContentHeightChanged: {
+                                            if (contentHeight > height) {
+                                                contentY = contentHeight - height;
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -407,7 +418,6 @@ Page {
                                     color: page.colorText
                                     font.pixelSize: 12
                                     font.family: "monospace"
-                                    // Поле активно только если подключились
                                     enabled: backend.isConnected
                                     clip: true
                                     selectByMouse: true
@@ -495,7 +505,7 @@ Page {
 
                                 MouseArea {
                                     anchors.fill: parent
-                                    onClicked: page.terminalOutput = "" // Очистка терминала (пока локально)
+                                    onClicked: page.terminalOutput = ""
                                 }
                             }
                         }
@@ -515,7 +525,6 @@ Page {
                                 clip: true
                                 flickableDirection: Flickable.VerticalFlick
 
-                                // Терминал также выводит общий лог
                                 Text {
                                     id: termText
                                     width: parent.width
