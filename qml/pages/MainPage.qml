@@ -22,13 +22,11 @@ Page {
     readonly property color colorLogText: "#8890a8"
 
     property string currentTab: "upload"
-    property bool connected: false
-    property string deviceName: ""
     property string filePath: ""
     property string uploadStatus: "Ready"
+
+    // Прогресс и логи теперь контролируются логикой, а не кликами
     property int progress: 0
-    property int logsCount: 0
-    property string terminalOutput: ""
     property string commandInput: ""
 
     Rectangle {
@@ -75,16 +73,18 @@ Page {
                     width: pairLabel.width + 24
                     height: 26
                     radius: 2
-                    color: page.connected ? "transparent" : page.colorAmber
-                    border.color: page.connected ? page.colorRed : page.colorAmber
-                    border.width: page.connected ? 1 : 0
+                    // Привязка к C++ (backend.isConnected)
+                    color: backend.isConnected ? "transparent" : page.colorAmber
+                    border.color: backend.isConnected ? page.colorRed : page.colorAmber
+                    border.width: backend.isConnected ? 1 : 0
                     anchors.verticalCenter: parent.verticalCenter
 
                     Text {
                         id: pairLabel
                         anchors.centerIn: parent
-                        text: page.connected ? "DISCONNECT" : "⬡  PAIR DEVICE"
-                        color: page.connected ? page.colorRed : "#0c0d10"
+                        // Привязка к C++
+                        text: backend.isConnected ? "DISCONNECT" : "⬡  PAIR DEVICE"
+                        color: backend.isConnected ? page.colorRed : "#0c0d10"
                         font.pixelSize: 10
                         font.bold: true
                         font.letterSpacing: 1.2
@@ -92,10 +92,8 @@ Page {
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: {
-                            page.connected = !page.connected
-                            page.deviceName = page.connected ? "TEST DEVICE" : ""
-                        }
+                        // Вызываем метод из C++
+                        onClicked: backend.toggleConnection()
                     }
                 }
 
@@ -105,8 +103,9 @@ Page {
 
                     DeviceIndicator {
                         slot: 1
-                        connected: page.connected
-                        deviceName: page.deviceName
+                        // Загорается только если реально подключились
+                        connected: backend.isConnected
+                        deviceName: backend.isConnected ? "STM32 (TCP)" : ""
                     }
                     DeviceIndicator {
                         slot: 2
@@ -247,6 +246,7 @@ Page {
 
                                         MouseArea {
                                             anchors.fill: parent
+                                            // Пока просто заглушка для выбора файла
                                             onClicked: page.filePath = "firmware.bin"
                                         }
                                     }
@@ -254,7 +254,7 @@ Page {
                             }
 
                             Text {
-                                text: "▸ Передача через BLE — блоки по 128 байт · MTU 20 байт · протокол Nordic UART"
+                                text: "▸ Передача через TCP/BLE — блоки по 128 байт · MTU 20 байт · протокол Nordic UART"
                                 color: "#3a3f52"
                                 font.pixelSize: 9
                                 font.letterSpacing: 0.5
@@ -319,8 +319,9 @@ Page {
                             Rectangle {
                                 width: uploadBtnText.width + 40
                                 height: 36
-                                color: page.connected ? page.colorAmber : page.colorSurface
-                                border.color: page.connected ? page.colorAmber : page.colorBorder
+                                // Кнопка активна только если есть подключение
+                                color: backend.isConnected ? page.colorAmber : page.colorSurface
+                                border.color: backend.isConnected ? page.colorAmber : page.colorBorder
                                 border.width: 1
                                 radius: 2
 
@@ -328,7 +329,7 @@ Page {
                                     id: uploadBtnText
                                     anchors.centerIn: parent
                                     text: "▶  UPLOAD FIRMWARE"
-                                    color: page.connected ? "#0c0d10" : page.colorMuted
+                                    color: backend.isConnected ? "#0c0d10" : page.colorMuted
                                     font.pixelSize: 11
                                     font.bold: true
                                     font.letterSpacing: 1
@@ -337,10 +338,10 @@ Page {
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: {
-                                        if (page.connected) {
-                                            page.progress = 100
-                                            page.uploadStatus = "Upload complete"
-                                            page.logsCount++
+                                        if (backend.isConnected) {
+                                            // Убрали фейковое заполнение прогресса
+                                            console.log("Кнопка загрузки нажата, но логика еще не реализована");
+                                            page.uploadStatus = "Waiting for logic...";
                                         }
                                     }
                                 }
@@ -357,13 +358,14 @@ Page {
                                     border.color: page.colorBorder
                                     border.width: 1
 
+                                    // Вывод реальных логов из C++
                                     Text {
                                         anchors.fill: parent
                                         anchors.margins: 8
-                                        text: page.logsCount === 0
+                                        text: backend.logText.length === 0
                                               ? "-- awaiting events --"
-                                              : "[LOG] " + page.logsCount + " events"
-                                        color: page.logsCount === 0 ? "#3a3f52" : page.colorLogText
+                                              : backend.logText
+                                        color: backend.logText.length === 0 ? "#3a3f52" : page.colorLogText
                                         font.pixelSize: 10
                                         font.family: "monospace"
                                         wrapMode: Text.Wrap
@@ -405,7 +407,8 @@ Page {
                                     color: page.colorText
                                     font.pixelSize: 12
                                     font.family: "monospace"
-                                    enabled: page.connected
+                                    // Поле активно только если подключились
+                                    enabled: backend.isConnected
                                     clip: true
                                     selectByMouse: true
                                     onTextChanged: page.commandInput = text
@@ -426,9 +429,9 @@ Page {
                                 id: sendBtn
                                 width: sendText.width + 20
                                 height: 34
-                                color: (page.connected && page.commandInput.length > 0)
+                                color: (backend.isConnected && page.commandInput.length > 0)
                                        ? page.colorAmber : "transparent"
-                                border.color: (page.connected && page.commandInput.length > 0)
+                                border.color: (backend.isConnected && page.commandInput.length > 0)
                                               ? page.colorAmber : page.colorBorder
                                 border.width: 1
                                 radius: 2
@@ -437,7 +440,7 @@ Page {
                                     id: sendText
                                     anchors.centerIn: parent
                                     text: "SEND  ↵"
-                                    color: (page.connected && page.commandInput.length > 0)
+                                    color: (backend.isConnected && page.commandInput.length > 0)
                                            ? "#0c0d10" : page.colorMuted
                                     font.pixelSize: 10
                                     font.bold: true
@@ -447,8 +450,7 @@ Page {
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: {
-                                        if (page.connected && page.commandInput.length > 0) {
-                                            page.terminalOutput += "\n[TX] " + page.commandInput + "\n"
+                                        if (backend.isConnected && page.commandInput.length > 0) {
                                             page.commandInput = ""
                                             commandField.text = ""
                                         }
@@ -493,7 +495,7 @@ Page {
 
                                 MouseArea {
                                     anchors.fill: parent
-                                    onClicked: page.terminalOutput = ""
+                                    onClicked: page.terminalOutput = "" // Очистка терминала (пока локально)
                                 }
                             }
                         }
@@ -513,13 +515,14 @@ Page {
                                 clip: true
                                 flickableDirection: Flickable.VerticalFlick
 
+                                // Терминал также выводит общий лог
                                 Text {
                                     id: termText
                                     width: parent.width
-                                    text: page.terminalOutput.length === 0
-                                          ? "> waiting for BLE notifications..."
-                                          : page.terminalOutput
-                                    color: page.terminalOutput.length === 0
+                                    text: backend.logText.length === 0
+                                          ? "> waiting for connection..."
+                                          : backend.logText
+                                    color: backend.logText.length === 0
                                            ? "#1a3a1a" : page.colorTerminalText
                                     font.pixelSize: 11
                                     font.family: "monospace"

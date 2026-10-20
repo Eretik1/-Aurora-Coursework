@@ -6,9 +6,11 @@ CONFIG += \
 PKGCONFIG += \
 
 SOURCES += \
+    src/connectionmanager.cpp \
     src/main.cpp \
 
 HEADERS += \
+    src/connectionmanager.h
 
 DISTFILES += \
     qml/Lab_2.qml \
@@ -27,6 +29,6 @@ TRANSLATIONS += \
     translations/ru.template.Lab_2.ts \
     translations/ru.template.Lab_2-ru.ts \
 
-QT += qml quick
+QT += qml quick network
 QT += svg
 RESOURCES += resources.qrc

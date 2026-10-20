@@ -10,7 +10,6 @@ Rectangle {
     height: 36
     color: "transparent"
 
-    // Нижняя полоска — индикатор активной вкладки
     Rectangle {
         anchors.bottom: parent.bottom
         width: parent.width
