@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Sailfish.Pickers 1.0
 import "../components"
 
 Page {
@@ -28,6 +29,23 @@ Page {
 
     property int progress: 0
     property string commandInput: ""
+
+    Component {
+            id: filePickerPage
+            FilePickerPage {
+
+                nameFilters: [ '*' ]
+
+                onSelectedContentPropertiesChanged: {
+
+                    page.filePath = selectedContentProperties.filePath
+                    console.log("Выбран файл: " + page.filePath)
+
+
+                    pageStack.pop()
+                }
+            }
+        }
 
     Rectangle {
         anchors.fill: parent
@@ -246,8 +264,9 @@ Page {
 
                                         MouseArea {
                                             anchors.fill: parent
-
-                                            onClicked: page.filePath = "firmware.bin"
+                                            onClicked: {
+                                                onClicked: pageStack.push(filePickerPage)
+                                            }
                                         }
                                     }
                                 }
@@ -276,7 +295,7 @@ Page {
                                     radius: 1
 
                                     Rectangle {
-                                        width: progressTrack.width * (page.progress / 100)
+                                        width: progressTrack.width * (backend.uploadProgress / 100.0)
                                         height: progressTrack.height - 2
                                         anchors.verticalCenter: parent.verticalCenter
                                         anchors.left: parent.left
@@ -306,8 +325,8 @@ Page {
                                     Text {
                                         width: parent.width * 0.4
                                         height: parent.height
-                                        text: page.progress + "%"
-                                        color: page.progress === 100 ? page.colorGreen : page.colorMuted
+                                        text: backend.uploadProgress + "%"
+                                        color: backend.uploadProgress === 100 ? page.colorGreen : page.colorMuted
                                         font.pixelSize: 10
                                         font.bold: true
                                         horizontalAlignment: Text.AlignRight
@@ -337,9 +356,10 @@ Page {
                                 MouseArea {
                                     anchors.fill: parent
                                     onClicked: {
-                                        if (backend.isConnected) {
-                                            console.log("Кнопка загрузки нажата, но логика еще не реализована");
-                                            page.uploadStatus = "Waiting for logic...";
+                                        if (backend.isConnected && page.filePath !== "") {
+                                            page.progress = 0
+                                            page.uploadStatus = "Sending..."
+                                            backend.uploadFirmware(page.filePath)
                                         }
                                     }
                                 }
