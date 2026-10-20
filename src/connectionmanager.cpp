@@ -119,3 +119,8 @@ void ConnectionManager::onBytesWritten(qint64 bytes) {
         }
     }
 }
+
+void ConnectionManager::clearLog() {
+    m_logText.clear();
+    emit logTextChanged();
+}

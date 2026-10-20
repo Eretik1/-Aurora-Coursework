@@ -18,6 +18,7 @@ public:
 
     Q_INVOKABLE void toggleConnection();
     Q_INVOKABLE void uploadFirmware(const QString &filePath);
+    Q_INVOKABLE void clearLog();
 
 signals:
     void isConnectedChanged();

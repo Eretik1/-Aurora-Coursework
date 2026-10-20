@@ -525,7 +525,7 @@ Page {
 
                                 MouseArea {
                                     anchors.fill: parent
-                                    onClicked: page.terminalOutput = ""
+                                    onClicked: backend.clearLog()
                                 }
                             }
                         }
