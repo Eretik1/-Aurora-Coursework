@@ -127,7 +127,8 @@ Page {
                     }
                     DeviceIndicator {
                         slot: 2
-                        connected: false
+                        connected: backend.targetConnected
+                        deviceName: backend.targetConnected ? "Target MCU" : ""
                     }
                 }
             }

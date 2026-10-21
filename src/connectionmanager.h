@@ -8,6 +8,7 @@ class ConnectionManager : public QObject {
     Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
     Q_PROPERTY(QString logText READ logText NOTIFY logTextChanged)
     Q_PROPERTY(int uploadProgress READ uploadProgress NOTIFY uploadProgressChanged)
+    Q_PROPERTY(bool targetConnected READ targetConnected NOTIFY targetConnectedChanged)
 
 public:
     explicit ConnectionManager(QObject *parent = nullptr);
@@ -15,6 +16,7 @@ public:
     bool isConnected() const { return m_isConnected; }
     QString logText() const { return m_logText; }
     int uploadProgress() const { return m_uploadProgress; }
+    bool targetConnected() const { return m_targetConnected; }
 
     Q_INVOKABLE void toggleConnection();
     Q_INVOKABLE void uploadFirmware(const QString &filePath);
@@ -25,6 +27,7 @@ signals:
     void logTextChanged();
     void progressChanged(int percent);
     void uploadProgressChanged();
+    void targetConnectedChanged();
 
 private slots:
     void onConnected();
@@ -38,6 +41,7 @@ private:
     qint64 m_totalBytesToSend = 0;
     qint64 m_bytesSent = 0;
     int m_uploadProgress = 0;
+    bool m_targetConnected = false;
 
     QTcpSocket m_socket;
     bool m_isConnected = false;

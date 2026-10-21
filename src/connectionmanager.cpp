@@ -39,12 +39,35 @@ void ConnectionManager::onDisconnected() {
     m_isConnected = false;
     emit isConnectedChanged();
     appendLog("Connection closed.");
+
+    if (m_targetConnected) {
+        m_targetConnected = false;
+        emit targetConnectedChanged();
+    }
+
 }
 
 void ConnectionManager::onReadyRead() {
-
     QByteArray data = m_socket.readAll();
-    appendLog(QString::fromUtf8(data).trimmed());
+    QString text = QString::fromUtf8(data);
+
+    appendLog(text.trimmed());
+
+    if (text.contains("Bootloader sync OK") || text.contains("Target started")) {
+        if (!m_targetConnected) {
+            m_targetConnected = true;
+            emit targetConnectedChanged();
+            appendLog("[SYS] Target MCU detected and connected!");
+        }
+    }
+
+    if (text.contains("Bootloader sync FAILED")) {
+        if (m_targetConnected) {
+            m_targetConnected = false;
+            emit targetConnectedChanged();
+            appendLog("[SYS] Target MCU disconnected!");
+        }
+    }
 }
 
 void ConnectionManager::onError(QAbstractSocket::SocketError) {
