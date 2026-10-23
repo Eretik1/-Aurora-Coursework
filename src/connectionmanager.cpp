@@ -1,5 +1,8 @@
 #include <QFile>
-#include <QFileInfo>
+#include <QDir>
+#include <QStandardPaths>
+#include <QDateTime>
+#include <QTextStream>
 #include "connectionmanager.h"
 
 ConnectionManager::ConnectionManager(QObject *parent) : QObject(parent) {
@@ -79,6 +82,17 @@ void ConnectionManager::onError(QAbstractSocket::SocketError) {
 void ConnectionManager::appendLog(const QString &msg) {
     m_logText += msg + "\n";
     emit logTextChanged();
+
+    QString logDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(logDir);
+
+    QFile file(logDir + "/app.log");
+    if (file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
+        QTextStream out(&file);
+        QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+        out << "[" << timestamp << "] " << msg << "\n";
+        file.close();
+    }
 }
 
 void ConnectionManager::uploadFirmware(const QString &filePath) {
