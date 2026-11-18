@@ -6,32 +6,32 @@ Row {
     property int slot: 1
     property bool connected: false
     property string deviceName: ""
+    property real scale: 1.0
 
-    spacing: 5
+    spacing: 5 * scale
 
     Text {
         text: "DEV " + (slot < 10 ? "0" + slot : slot)
         color: "#7a4f0a"
-        font.pixelSize: 8
+        font.pixelSize: 8 * scale
         font.letterSpacing: 0.8
         anchors.verticalCenter: parent.verticalCenter
     }
 
     Rectangle {
-        width: 6
-        height: 6
-        radius: 3
+        width: 6 * scale
+        height: 6 * scale
+        radius: 3 * scale
         color: indicator.connected ? "#3ddc84" : "#ff4f4f"
         anchors.verticalCenter: parent.verticalCenter
     }
 
     Text {
-        text: indicator.connected
-              ? (indicator.deviceName || "BLE DEVICE")
-              : "NOT PAIRED"
-        color: indicator.connected ? "#3ddc84" : "#666878"
-        font.pixelSize: 9
-        font.letterSpacing: 0.5
-        anchors.verticalCenter: parent.verticalCenter
+        width: 60 * scale
+        text: connected ? (deviceName || "READY") : "NOT PAIRED"
+        color: connected ? "#3ddc84" : "#666878"
+        font.pixelSize: 10 * scale
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
     }
 }

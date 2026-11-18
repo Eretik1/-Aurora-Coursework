@@ -31,9 +31,6 @@ Page {
     property int progress: 0
     property string commandInput: ""
 
-    // ==========================================
-    // БЛОК РАБОТЫ С БАЗОЙ ДАННЫХ (LocalStorage)
-    // ==========================================
     function getDatabase() {
         return LocalStorage.openDatabaseSync("ProgrammerDB_v3", "1.0", "Programmer History", 1000000);
     }
@@ -65,7 +62,7 @@ Page {
         });
         historyPage.refreshHistory();
     }
-    // Вспомогательная функция: найти или создать устройство
+
     function getOrCreateDevice(tx, mac, name) {
         var rs = tx.executeSql('SELECT id FROM devices WHERE mac_address = ?', [mac]);
         if (rs.rows.length > 0) {
@@ -77,9 +74,7 @@ Page {
         }
     }
 
-    // Вспомогательная функция: найти или создать прошивку
     function getOrCreateFirmware(tx, fileName, filePath, fileSize) {
-        // Ищем по пути и размеру
         var rs = tx.executeSql('SELECT id FROM firmwares WHERE file_path = ? AND file_size = ?', [filePath, fileSize]);
         if (rs.rows.length > 0) {
             return rs.rows.item(0).id;
@@ -95,7 +90,7 @@ Page {
         var now = new Date().toLocaleString(Qt.locale(), "yyyy-MM-dd HH:mm:ss");
 
         db.transaction(function(tx) {
-            // Пока используем фейковый MAC-адрес, так как подключаемся по TCP
+
             var fakeMac = "00:11:22:33:44:55";
             var devId = getOrCreateDevice(tx, fakeMac, "STM32 (TCP)");
             var fwId = getOrCreateFirmware(tx, fileName, filePath, fileSize);
@@ -111,7 +106,7 @@ Page {
         var list = [];
         var db = getDatabase();
         db.readTransaction(function(tx) {
-            // Делаем JOIN трех таблиц, чтобы получить красивые данные для списка
+
             var rs = tx.executeSql(
                 'SELECT h.timestamp, d.name as device_name, f.file_name, f.file_size, h.status ' +
                 'FROM upload_history h ' +
@@ -136,11 +131,10 @@ Page {
         var db = getDatabase();
         db.transaction(function(tx) {
             tx.executeSql('DELETE FROM upload_history');
-            // Прошивки и устройства можно не удалять, они привязаны к истории
         });
         historyPage.refreshHistory();
     }
-    // ==========================================
+
 
     Component.onCompleted: {
         initDatabase();
@@ -153,7 +147,7 @@ Page {
             saveToHistory(fileName, filePath, fileSize);
         }
     }
-    // Компонент выбора файла
+
     Component {
         id: filePickerPage
         FilePickerPage {
@@ -173,7 +167,6 @@ Page {
     Column {
         anchors.fill: parent
 
-        // --- ВЕРХНЯЯ ПАНЕЛЬ ---
         Rectangle {
             width: parent.width
             height: 48 * page.uiScale
@@ -230,28 +223,29 @@ Page {
                         onClicked: backend.toggleConnection()
                     }
                 }
+            }
 
-                Row {
-                    spacing: 12 * page.uiScale
-                    anchors.verticalCenter: parent.verticalCenter
+            Row {
+                anchors.right: parent.right
+                anchors.rightMargin: 12 * page.uiScale
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 8 * page.uiScale
 
-                    DeviceIndicator {
-                        slot: 1
-                        connected: backend.isConnected
-                        deviceName: backend.isConnected ? "STM32" : ""
-                        scale: page.uiScale
-                    }
-                    DeviceIndicator {
-                        slot: 2
-                        connected: backend.targetConnected
-                        deviceName: backend.targetConnected ? "Target MCU" : ""
-                        scale: page.uiScale
-                    }
+                DeviceIndicator {
+                    slot: 1
+                    connected: backend.isConnected
+                    deviceName: backend.isConnected ? "STM32" : ""
+                    scale: page.uiScale
+                }
+                DeviceIndicator {
+                    slot: 2
+                    connected: backend.targetConnected
+                    deviceName: backend.targetConnected ? "Target MCU" : ""
+                    scale: page.uiScale
                 }
             }
         }
 
-        // --- ПАНЕЛЬ ВКЛАДОК ---
         Rectangle {
             width: parent.width
             height: 36 * page.uiScale
@@ -318,7 +312,6 @@ Page {
                     if (page.currentTab !== newTab) page.currentTab = newTab
                 }
 
-                // --- ВКЛАДКА 1: UPLOAD ---
                 Item {
                     x: 0
                     width: pager.width
@@ -516,7 +509,6 @@ Page {
                     }
                 }
 
-                // --- ВКЛАДКА 2: TERMINAL ---
                 Item {
                     x: pager.width
                     width: pager.width
@@ -667,7 +659,6 @@ Page {
                     }
                 }
 
-                // --- ВКЛАДКА 3: HISTORY ---
                 Item {
                     id: historyPage
                     x: pager.width * 2
@@ -751,7 +742,7 @@ Page {
                                         font.pixelSize: 12 * page.uiScale
                                     }
                                     Text {
-                                        text: model.time + " | STM32" // Убрали model.device, так как в LocalStorage его нет
+                                        text: model.time + " | STM32"
                                         color: page.colorMuted
                                         font.pixelSize: 9 * page.uiScale
                                     }
