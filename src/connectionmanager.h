@@ -2,6 +2,7 @@
 #include <QObject>
 #include <QString>
 #include <QTcpSocket>
+#include <QVariantList>
 
 class ConnectionManager : public QObject {
     Q_OBJECT
@@ -28,6 +29,7 @@ signals:
     void progressChanged(int percent);
     void uploadProgressChanged();
     void targetConnectedChanged();
+    void firmwareUploaded(const QString &fileName, const QString &filePath, int fileSize);
 
 private slots:
     void onConnected();
@@ -46,4 +48,6 @@ private:
     QTcpSocket m_socket;
     bool m_isConnected = false;
     QString m_logText;
+
+    QString m_currentDeviceMac = "00:11:22:33:44:55";
 };

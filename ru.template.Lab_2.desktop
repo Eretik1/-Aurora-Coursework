@@ -11,3 +11,4 @@ Permissions=Bluetooth;UserDirs
 OrganizationName=ru.template
 ApplicationName=Lab_2
 ExecDBus=/usr/bin/ru.template.Lab_2
+

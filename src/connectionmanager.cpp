@@ -3,6 +3,10 @@
 #include <QStandardPaths>
 #include <QDateTime>
 #include <QTextStream>
+#include <QStandardPaths>
+#include <QDir>
+#include <QDebug>
+#include <QFileInfo>
 #include "connectionmanager.h"
 
 ConnectionManager::ConnectionManager(QObject *parent) : QObject(parent) {
@@ -140,6 +144,8 @@ void ConnectionManager::uploadFirmware(const QString &filePath) {
     m_socket.write(header);
     m_socket.write(fileData);
 
+    emit firmwareUploaded(QFileInfo(localPath).fileName(), localPath, fileData.size());
+
     appendLog("Firmware data sent successfully.");
 }
 
@@ -167,3 +173,5 @@ void ConnectionManager::clearLog() {
         file.close();
     }
 }
+
+

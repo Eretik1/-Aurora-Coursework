@@ -6,6 +6,7 @@ Rectangle {
     property string label: ""
     default property alias content: innerColumn.data
 
+    property real scale: 1.2
     color: "#131419"
     border.color: "#2a2d3a"
     border.width: 1
@@ -24,7 +25,7 @@ Rectangle {
         Text {
             text: section.label
             color: "#666878"
-            font.pixelSize: 9
+            font.pixelSize: 9 * scale
             font.bold: true
             font.letterSpacing: 1.2
         }
